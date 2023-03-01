@@ -53,6 +53,7 @@ type NavigationItemResponse struct {
 	Name         string                               `json:"name"`
 	Code         string                               `json:"code"`
 	Description  string                               `json:"description"`
+	ParentUuid   uuid.UUID                            `json:"parent_uuid"`
 	Sort         int                                  `json:"sort"`
 	ChildrenList map[uuid.UUID]NavigationItemResponse `json:"children_list"`
 }
@@ -61,26 +62,42 @@ func (s *NavigationListStruct) Response() SortedNavigationList {
 	var response = make(map[uuid.UUID]NavigationItemResponse)
 
 	for _, navigation := range s.Navigations {
-		item := NavigationItemResponse{
+		response[navigation.ID] = NavigationItemResponse{
 			ID:           navigation.ID,
 			Name:         navigation.Name,
 			Code:         navigation.Code,
 			Description:  navigation.Description,
+			ParentUuid:   navigation.ParentUuid,
 			Sort:         navigation.Sort,
 			ChildrenList: make(map[uuid.UUID]NavigationItemResponse),
 		}
-
-		if navigation.ParentUuid == uuid.Nil {
-			response[item.ID] = item
-			continue
-		}
-
-		response[navigation.ParentUuid].ChildrenList[item.ID] = item
 	}
 
-	sortedNavigationList := fillSortedNavigationList(sortBySort(response))
+	sortedNavigationList := fillSortedNavigationList(
+		sortBySort(
+			buildTree(&response, uuid.UUID{}),
+		),
+	)
 
 	return sortedNavigationList
+}
+
+func buildTree(employees *map[uuid.UUID]NavigationItemResponse, parentUuid uuid.UUID) map[uuid.UUID]NavigationItemResponse {
+	tree := map[uuid.UUID]NavigationItemResponse{}
+
+	for _, v := range *employees {
+		if v.ParentUuid == parentUuid {
+			children := buildTree(employees, v.ID)
+
+			if len(children) > 0 {
+				v.ChildrenList = children
+			}
+
+			tree[v.ID] = v
+		}
+	}
+
+	return tree
 }
 
 func fillSortedNavigationList(list PairList) SortedNavigationList {

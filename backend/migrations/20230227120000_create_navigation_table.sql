@@ -22,7 +22,7 @@ CREATE TRIGGER set_timestamp
     BEFORE UPDATE
     ON navigation
     FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();
+    EXECUTE PROCEDURE trigger_set_timestamp();
 
 INSERT INTO navigation
 VALUES (uuid_generate_v4(), 'Пункт 1', '', '', 500),

@@ -22,8 +22,8 @@ type NavigationValueItemResponse struct {
 
 func (s *NavigationValueListStruct) Response() []NavigationValueItemResponse {
 	var response []NavigationValueItemResponse
-	for _, direction := range s.Navigations {
-		serializer := NavigationValueItemStruct{s.C, direction}
+	for _, navigation := range s.Navigations {
+		serializer := NavigationValueItemStruct{s.C, navigation}
 		response = append(response, serializer.Response())
 	}
 

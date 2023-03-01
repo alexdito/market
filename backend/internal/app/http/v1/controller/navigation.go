@@ -23,14 +23,14 @@ type navigationControllerImpl struct {
 }
 
 func (controller *navigationControllerImpl) GetNavigationValueList(ctx *gin.Context) {
-	directionsValueList, err := controller.service.GetValueList(ctx)
+	navigationValueList, err := controller.service.GetValueList(ctx)
 
 	if err != nil {
 		ctx.JSON(err.HttpCode(), gin.H{"message": err.Error()})
 		return
 	}
 
-	serializer := response.NavigationValueListStruct{C: ctx, Navigations: directionsValueList}
+	serializer := response.NavigationValueListStruct{C: ctx, Navigations: navigationValueList}
 
 	ctx.JSON(http.StatusOK, gin.H{"data": serializer.Response()})
 }
